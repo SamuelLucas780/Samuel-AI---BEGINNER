@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090d18"><title>SAMUEL AI</title>
+<style>
+:root{--bg:#090d18;--panel:#111a2b;--panel2:#17243a;--line:#293954;--text:#f1f5ff;--muted:#9aaac2;--purple:#8064ff;--cyan:#39d5e6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#263064 0,transparent 45%),var(--bg);color:var(--text);font:15px system-ui,Segoe UI,Arial;min-height:100vh}
+.shell{max-width:1050px;margin:auto;min-height:100vh;display:flex;flex-direction:column;padding:0 18px}
+header{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff17}
+.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:1.5px}.logo{height:39px;width:39px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--purple),var(--cyan));font-size:22px;box-shadow:0 0 25px #8064ff55}
+.status{font-size:12px;color:#80e4b6}.status:before{content:"";display:inline-block;width:7px;height:7px;background:#54d99a;border-radius:50%;margin-right:7px}
+main{width:100%;max-width:800px;margin:0 auto;flex:1;display:flex;flex-direction:column}
+.hero{text-align:center;margin:10vh auto 30px;max-width:600px}.spark{font-size:42px;color:#b5a8ff;text-shadow:0 0 35px #8064ff}.hero h1{font-size:clamp(30px,6vw,46px);margin:8px 0}.grad{background:linear-gradient(90deg,#b5a1ff,#54e3ed);color:transparent;background-clip:text}.hero p{color:var(--muted);line-height:1.65}
+.suggestions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}.suggestion{background:#111d30;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;color:var(--text);cursor:pointer}.suggestion:hover{border-color:var(--purple)}.suggestion b{display:block;margin-bottom:5px}.suggestion span{font-size:12px;color:var(--muted)}
+#messages{padding:28px 0;flex:1}.msg{display:flex;gap:11px;margin:17px 0;align-items:flex-start}.msg.user{flex-direction:row-reverse}.avatar{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:linear-gradient(135deg,var(--purple),var(--cyan));display:grid;place-items:center;font-weight:bold}.user .avatar{background:#304363}.bubble{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;padding:12px 15px;border:1px solid var(--line);background:var(--panel2);border-radius:4px 15px 15px 15px;max-width:min(680px,85%)}.user .bubble{background:#24334e;border-radius:15px 4px 15px 15px}
+.composer-area{position:sticky;bottom:0;padding:14px 0 18px;background:linear-gradient(transparent,var(--bg) 18%)}.composer{display:flex;gap:10px;background:#111a2b;border:1px solid #3a4d70;border-radius:17px;padding:9px}.composer:focus-within{border-color:#927dff;box-shadow:0 0 0 3px #8064ff22}textarea{flex:1;resize:none;min-height:42px;max-height:130px;background:transparent;border:0;outline:0;color:white;padding:10px;font:inherit}textarea::placeholder{color:#8292ad}button.send{width:45px;border:0;border-radius:12px;color:white;background:linear-gradient(135deg,var(--purple),#278da9);font-size:20px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.hint{text-align:center;color:#73829a;font-size:10px;margin-top:9px}.error{color:#ffb6b6}
+@media(max-width:600px){.shell{padding:0 12px}.suggestions{grid-template-columns:1fr}.hero{margin-top:7vh}.bubble{max-width:88%}}
+</style></head>
+<body><div class="shell">
+<header><div class="brand"><div class="logo">✦</div><span>SAMUEL AI</span></div><div class="status">Assistente pronto</div></header>
+<main><section class="hero" id="hero"><div class="spark">✦</div><h1>Olá! Eu sou a <span class="grad">SAMUEL AI</span>.</h1><p>Seu espaço para aprender, criar, programar e transformar ideias em projetos.</p>
+<div class="suggestions">
+<button class="suggestion" onclick="quick('Crie um plano de estudos para mim')"><b>📚 Organizar estudos</b><span>Monte um plano de aprendizagem.</span></button>
+<button class="suggestion" onclick="quick('Me dê uma ideia de projeto tecnológico')"><b>💡 Criar um projeto</b><span>Transforme uma ideia em ação.</span></button>
+<button class="suggestion" onclick="quick('Explique inteligência artificial de forma simples')"><b>🤖 Aprender IA</b><span>Entenda tecnologia sem complicação.</span></button>
+<button class="suggestion" onclick="quick('Me ajude a criar um site moderno')"><b>💻 Programar</b><span>Comece um site ou sistema.</span></button>
+</div></section><section id="messages" aria-live="polite"></section></main>
+<div class="composer-area"><div class="composer"><textarea id="prompt" rows="1" placeholder="Pergunte alguma coisa à SAMUEL AI..." onkeydown="handleKey(event)"></textarea><button class="send" id="send" onclick="sendMessage()">➤</button></div><div class="hint">As respostas são geradas por IA quando a API está configurada. Não compartilhe senhas ou informações privadas.</div></div>
+</div>
+<script>
+const input=document.getElementById('prompt'), messagesEl=document.getElementById('messages'), sendBtn=document.getElementById('send');
+let history=[];
+function add(text,role){const row=document.createElement('div');row.className='msg '+(role==='user'?'user':'');const av=document.createElement('div');av.className='avatar';av.textContent=role==='user'?'Você':'✦';const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=text;row.append(av,bubble);messagesEl.append(row);row.scrollIntoView({behavior:'smooth',block:'end'});}
+async function sendMessage(){const text=input.value.trim();if(!text||sendBtn.disabled)return;document.getElementById('hero')?.remove();input.value='';add(text,'user');history.push({role:'user',content:text});sendBtn.disabled=true;sendBtn.textContent='…';
+try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Falha ao consultar a IA.');const answer=data.reply||'Não recebi uma resposta.';history.push({role:'assistant',content:answer});add(answer,'assistant');}
+catch(e){add('Não consegui conectar: '+e.message,'assistant');history.pop();}
+finally{sendBtn.disabled=false;sendBtn.textContent='➤';input.focus();}}
+function quick(t){input.value=t;sendMessage()}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
+</script></body></html>
